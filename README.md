@@ -118,6 +118,20 @@ Comprehensive technical reports detailing the security assessments, regulatory c
 
 ---
 
+## 🗺️ Roadmap & Future Enhancements
+
+Planned production-grade hardening, automated testing, and CI/CD milestones for subsequent iterations:
+
+- **Automated CI/CD Pipeline:** Implement a GitHub Actions workflow (`.github/workflows/build-and-test.yml`) to automatically trigger Maven builds, run regression suites, and execute OWASP dependency scans on every pull request and push to `main`.
+- **Expanded Test Coverage:**
+  - Unit tests asserting deterministic 64-character SHA-256 hexadecimal outputs against established cryptographic test vectors.
+  - Integration testing via Spring `MockMvc` to validate HTTPS endpoint responses, HTTP 200 status codes, and error boundary behaviors.
+- **Mutual TLS (mTLS):** Transition from one-way server TLS to mutual certificate-based client authentication for zero-trust API communication.
+- **Dynamic Hash Inputs:** Expand the REST interface to accept custom request bodies (`POST /api/v1/hash/verify`) with configurable digest algorithms (e.g., SHA-512, HMAC).
+- **Containerization:** Package the application as an unprivileged, multi-stage Docker container utilizing a lightweight Eclipse Temurin JRE base image.
+
+---
+
 ## 📁 Repository Structure
 
 ```text
