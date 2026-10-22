@@ -1,44 +1,126 @@
-# Secure REST Service with SSL/TLS & SHA-256 Validation
-> [!NOTE]
-> 🚧 **Work in Progress:** This project is actively being populated and refactored for production standards. Core endpoints and documentation will be fully available soon.
+# Secure REST Service with TLS/HTTPS & SHA-256 Verification
 
-A secure Spring Boot microservice demonstrating transport-layer security via self-signed SSL/TLS certificates and payload integrity verification using cryptographic SHA-256 hashing.
+A hardened Spring Boot microservice engineered for Artemis Financial demonstrating transport-layer confidentiality via an X.509 certificate and automated payload integrity verification using cryptographic SHA-256 message digests.
 
 ---
 
 ## 🔒 Security Architecture
 
-- **Transport Layer Security (HTTPS):** Configured via embedded Tomcat using an asymmetric `PKCS12` keystore generated with Java `keytool`.
-- **Cryptographic Verification:** Endpoints accept arbitrary payloads, compute cryptographic digests using `java.security.MessageDigest`, and validate client-supplied SHA-256 hashes against calculated digests.
-- **Defensive Error Handling:** Standardized error responses to prevent stack trace leakage and injection vectors.
+- **Transport Layer Security (HTTPS):** Enforces encrypted client-server transit across port `8443` using an embedded Tomcat servlet container bound to an X.509 self-signed certificate stored in a Java KeyStore (`keystore.jks`)[cite: 1].
+- **Cryptographic Integrity (SHA-256):** Implements `java.security.MessageDigest` to compute deterministic 256-bit (32-byte) hashes formatted as 64-character hexadecimal checksums, ensuring detection of payload tampering or transmission errors.
+- **Strict Character Encoding:** Explicitly enforces `StandardCharsets.UTF_8` byte conversion prior to digest computation to prevent cross-platform locale encoding anomalies.
+- **Static Application Security Testing (SAST):** Scanned with the OWASP Dependency-Check Maven plugin to establish dependency governance against National Vulnerability Database (NVD) CVE baselines without introducing external third-party security vulnerabilities.
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Language:** Java 17+ (or 21)
-- **Framework:** Spring Boot 3.x (Spring Web, Spring Security)
-- **Security & Crypto:** Java Keytool, SHA-256 (`MessageDigest`), HTTPS/TLS 1.3
-- **Build Tool:** Maven
+- **Language:** Java (JDK 17+)
+- **Framework:** Spring Boot (Spring Web, Embedded Tomcat)
+- **Security & Cryptography:** Java Keytool, Java Cryptography Architecture (JCA), SHA-256 (`MessageDigest`), TLS/HTTPS
+- **Static Analysis:** OWASP Dependency-Check
+- **Build Automation:** Apache Maven
 
 ---
 
 ## 🚀 API Specification
 
-| Method | Endpoint | Description | Sample Payload | Success Response |
-| :--- | :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/hash/generate` | Generates SHA-256 checksum for payload | `{"data": "sample text"}` | `200 OK` + Checksum |
-| `POST` | `/api/v1/hash/verify` | Compares payload hash against incoming hash | `{"data": "...", "hash": "..."}` | `200 OK` (Boolean Match) |
+### Endpoint: `/hash`
+
+- **Method:** `GET`
+- **Protocol:** `HTTPS` (Port `8443`)
+- **Produces:** `text/html`
+- **Description:** Ingests the configured verification string, computes the cryptographic SHA-256 digest, and returns an HTML-formatted payload containing the raw string, algorithm specification, and hexadecimal checksum.
+
+#### Request Example
+```bash
+curl -k https://localhost:8443/hash
+```
+*(Note: `-k` or `--insecure` allows local development testing with self-signed certificates).*
+
+#### Response Output
+```html
+<p>data: Grace Jungclas - CS 305 Artemis Financial Checksum Verification Data</p>
+<p>Algorithm: SHA-256</p>
+<p>Checksum: 1a5615af5336b443a9c9c2e8f6dba64fb996afdb63fa73daab12e825f416f190</p>
+```
 
 ---
 
-## 💻 Getting Started
+## 💻 Setup & Execution
 
 ### Prerequisites
-- JDK 17+
-- Maven 3.8+
+- **Java Development Kit (JDK):** 17+
+- **Build Tool:** Apache Maven 3.8+ (or use the included `./mvnw` wrapper)
 
-### Setup & Execution
-1. Generate the local development certificate:
-   ```bash
-   keytool -genkeypair -alias secureboot -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore src/main/resources/keystore.p12 -validity 365
+### 1. Certificate & Keystore Generation
+The repository includes a development certificate in `src/main/resources/keystore.jks`[cite: 1]. To generate or inspect a similar self-signed identity certificate via Java `keytool`:
+
+```bash
+# Generate key pair and keystore
+keytool -genkey -keyalg RSA -alias selfsigned -keypass CS305pwd -keystore keystore.jks -storepass CS305pwd -validity 360 -keysize 2048
+
+# Export the public certificate
+keytool -export -alias selfsigned -storepass CS305pwd -file server.cer -keystore keystore.jks
+
+# Verify certificate properties and fingerprints
+keytool -printcert -file server.cer
+```
+
+### 2. Configuration (`src/main/resources/application.properties`)
+```properties
+server.port=8443
+server.ssl.key-alias=selfsigned
+server.ssl.key-store-password=CS305pwd
+server.ssl.key-store=classpath:keystore.jks
+server.ssl.key-store-type=JKS
+```
+
+---
+
+### 3. Build & Run
+Compile the application:
+```bash
+./mvnw clean package
+```
+
+Run the microservice:
+```bash
+./mvnw spring-boot:run
+```
+
+Access the endpoint in any browser:
+```text
+https://localhost:8443/hash
+```
+
+### 4. Vulnerability Scanning
+Run secondary static analysis using the OWASP Dependency-Check plugin:
+```bash
+./mvnw dependency-check:check
+```
+The resulting HTML report generates under `target/dependency-check-report.html`[cite: 1].
+
+---
+
+## 📁 Repository Structure
+
+```text
+secure-rest-service/
+├── .gitignore
+├── HELP.md
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+├── README.md
+└── src/
+    ├── main/
+    │   ├── java/com/snhu/sslserver/
+    │   │   └── SslServerApplication.java
+    │   └── resources/
+    │       ├── application.properties
+    │       └── keystore.jks
+    └── test/
+        └── java/com/snhu/sslserver/
+            └── SslServerApplicationTests.java
+```
