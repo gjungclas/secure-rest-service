@@ -109,6 +109,15 @@ The resulting HTML report generates under `target/dependency-check-report.html`[
 
 ---
 
+## 📄 Security Reports & Analysis
+
+Comprehensive technical reports detailing the security assessments, regulatory compliance, and architectural refactoring performed for this service:
+
+* **[Vulnerability Assessment Report (Project One)](docs/Artemis-Financial-Vulnerability-Assessment.pdf):** Initial threat modeling, attack surface mapping, static dependency analysis, and risk mitigation strategies.
+* **[Practices for Secure Software Report (Project Two)](docs/Artemis-Financial-Practices-for-Secure-Software.pdf):** TLS termination design, Java Cryptography Architecture (JCA) implementation, verification testing, and compliance alignment.
+
+---
+
 ## 📁 Repository Structure
 
 ```text
