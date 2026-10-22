@@ -1,12 +1,18 @@
 # Secure REST Service with TLS/HTTPS & SHA-256 Verification
 
-A hardened Spring Boot microservice engineered for Artemis Financial demonstrating transport-layer confidentiality via an X.509 certificate and automated payload integrity verification using cryptographic SHA-256 message digests.
+[![Java Version](https://img.shields.io/badge/java-17%2B-blue.svg)](https://docs.oracle.com/en/java/)
+[![Framework](https://img.shields.io/badge/framework-Spring%20Boot-green.svg)](https://spring.io/projects/spring-boot)
+[![Security Standard](https://img.shields.io/badge/security-TLS%20%7C%20HTTPS-red.svg)](https://en.wikipedia.org/wiki/Transport_Layer_Security)
+[![Cryptography](https://img.shields.io/badge/crypto-SHA--256-orange.svg)](https://en.wikipedia.org/wiki/SHA-2)
+[![Build Automation](https://img.shields.io/badge/build-Apache%20Maven-C71A36.svg)](https://maven.apache.org/)
+
+A hardened Spring Boot microservice engineered for Artemis Financial demonstrating transport-layer confidentiality via an X.509 certificate and automated payload integrity verification using cryptographic SHA-256 message digests. The platform enforces HTTPS transit over port 8443 via an embedded Tomcat container bound to a custom Java KeyStore, while exposing RESTful verification endpoints to validate client-server payloads against cryptographic tampering and transmission corruption.
 
 ---
 
 ## 🔒 Security Architecture
 
-- **Transport Layer Security (HTTPS):** Enforces encrypted client-server transit across port `8443` using an embedded Tomcat servlet container bound to an X.509 self-signed certificate stored in a Java KeyStore (`keystore.jks`)[cite: 1].
+- **Transport Layer Security (HTTPS):** Enforces encrypted client-server transit across port `8443` using an embedded Tomcat servlet container bound to an X.509 self-signed certificate stored in a Java KeyStore (`keystore.jks`).
 - **Cryptographic Integrity (SHA-256):** Implements `java.security.MessageDigest` to compute deterministic 256-bit (32-byte) hashes formatted as 64-character hexadecimal checksums, ensuring detection of payload tampering or transmission errors.
 - **Strict Character Encoding:** Explicitly enforces `StandardCharsets.UTF_8` byte conversion prior to digest computation to prevent cross-platform locale encoding anomalies.
 - **Static Application Security Testing (SAST):** Scanned with the OWASP Dependency-Check Maven plugin to establish dependency governance against National Vulnerability Database (NVD) CVE baselines without introducing external third-party security vulnerabilities.
